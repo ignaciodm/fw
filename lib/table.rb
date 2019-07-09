@@ -17,7 +17,7 @@ class Table
   end
 
   def add_record(record)
-    @records << @model_class.new(record) # add validation
+    @records << @model_class.new(*record) # add validation
   end
 
   def string(name)

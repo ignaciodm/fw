@@ -1,5 +1,5 @@
 class FileImporter
-   attr_accessor :path, :separator
+  attr_accessor :path, :separator
   
   def initialize(path: path, separator: separator)
     @path = path
