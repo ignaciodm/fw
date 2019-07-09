@@ -1,0 +1,39 @@
+// people:
+// - !ruby/struct:Person
+//   first_name: Bob
+//   last_name: Smith
+// - !ruby/struct:Person
+//   first_name: Mary
+//   last_name: Johnson
+// greeting:
+//   hello: world
+
+// ({
+//   "thehobbit.01.64": {
+//     "project": "the hobbit",
+//     "shot": 01,
+//     "version": 64,
+//     "status": "scheduled",
+//     "finish_date": "2010-05-15",
+//     "internal_bid": 45.0,
+//     "created_date": "2010-04-01 13: 35"
+//   }
+// },
+// {
+//   "project": "lotr",
+//   "shot": 03,
+//   "version": 03,
+//   "status": "finished",
+//   "finish_date": "2010-05-15",
+//   "internal_bid": 15.0,
+//   "created_date": "2001-04-01 06: 47"
+// },
+// {
+//   "project": "the hobbit",
+//   "shot": 01,
+//   "version": 64,
+//   "status": "scheduled",
+//   "finish_date": "2010-05-15",
+//   "internal_bid": 45.0,
+//   "created_date": "2010-04-01 13: 35"
+// })
