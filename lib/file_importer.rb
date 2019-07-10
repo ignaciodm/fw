@@ -15,8 +15,6 @@ class FileImporter
   end
 
   def each_line_as_hash
-    lower_case_columns = []
-
     File.open(@path, 'r') do |f|
       f.each_with_index do |line, index|
         is_column_header_line = index == 0
