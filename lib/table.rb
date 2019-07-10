@@ -1,23 +1,37 @@
 require 'column.rb'
 
 class Table
-   attr_accessor :name, :model_class, :columns, :records
+   attr_accessor :name, :model_class, :columns, :records, :indexes, :index_hash
   
   def initialize(model: model)
     @name = model.to_s.downcase
     @model_class = model
     @columns = []
     @records = []
+    @indexes = []
+    @index_hash = {}
   end
 
   def add_column(type, name)
-    puts "add column"
-    puts name
     @columns << Column.new(type: type, name: name.to_s)
   end
 
   def add_record(record)
-    @records << @model_class.new(*record) # add validation
+    new_record = @model_class.new(*record)
+
+    @records << new_record # add validation
+
+    # todo , do this for each index in @indexes
+    added_record_index = @records.size - 1
+    index_key = @indexes.first[:keys].map do |key| 
+        new_record.send(key.to_sym)
+    end.join('.')
+
+    @index_hash[index_key] = added_record_index
+  end
+
+  def add_combined_index(*keys, options)
+    @indexes << {keys: keys, options: options}  # todo create model for index?
   end
 
   def string(name)
