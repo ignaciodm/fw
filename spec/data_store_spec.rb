@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'data_store.rb'
 require 'project.rb'
 
@@ -5,8 +7,8 @@ describe DataStore do
   before :each do
     @data_store = DataStore.new
     @table = @data_store.create_table Project do |t|
-      t.string :project #max 64
-      t.string :shot #max 64
+      t.string :project # max 64
+      t.string :shot # max 64
       t.integer :version # 0 and 65535
 
       t.add_combined_index :project, :shot, :version, unique: true
@@ -22,89 +24,87 @@ describe DataStore do
   #       CREATED_DATE: The time and date when this record is being added to the system. (Timestamp in YYYY-MM-DD HH:MM format)
 
   it 'should create a table with specific columns' do
-     expect(@table.columns.size).to eq(3)
-     expect(@table.columns).to all(be_an(Column))
-     expect(@table.columns.first).to have_attributes(type: String, name: 'project')
-     expect(@table.columns[1]).to have_attributes(type: String, name: 'shot')
-     expect(@table.columns[2]).to have_attributes(type: Integer, name: 'version')
+    expect(@table.columns.size).to eq(3)
+    expect(@table.columns).to all(be_an(Column))
+    expect(@table.columns.first).to have_attributes(type: String, name: 'project')
+    expect(@table.columns[1]).to have_attributes(type: String, name: 'shot')
+    expect(@table.columns[2]).to have_attributes(type: Integer, name: 'version')
   end
 
   it { expect(@table.name).to eq('project') }
 
   it 'should set the combined index as an array' do
-    expect(@table.indexes).to eq([{:keys=>[:project, :shot, :version], :options=>{:unique=>true}}])
+    expect(@table.indexes).to eq([{ keys: %i[project shot version], options: { unique: true } }])
   end
 
   describe 'when adding an array of json projects' do
     before :each do
       @records_raw_data = [
-         {
-          "created_date"=>"2010-04-01 13:35",
-          "finish_date"=>"2010-05-15",
-          "internal_bid"=>"45.00",
-          "project"=>"the hobbit",
-          "shot"=>"01",
-          "status"=>"scheduled",
-          "version"=>"64"
+        {
+          'created_date' => '2010-04-01 13:35',
+          'finish_date' => '2010-05-15',
+          'internal_bid' => '45.00',
+          'project' => 'the hobbit',
+          'shot' => '01',
+          'status' => 'scheduled',
+          'version' => '64'
         },
         {
-           "created_date"=>"2001-04-01 06:47",
-          "finish_date"=>"2001-05-15",
-          "internal_bid"=>"15.00",
-          "project"=>"lotr",
-          "shot"=>"03",
-          "status"=>"finished",
-          "version"=>"16"
+          'created_date' => '2001-04-01 06:47',
+          'finish_date' => '2001-05-15',
+          'internal_bid' => '15.00',
+          'project' => 'lotr',
+          'shot' => '03',
+          'status' => 'finished',
+          'version' => '16'
         },
         {
-          "created_date"=>"2006-08-04 07:22",
-          "finish_date"=>"2006-07-22",
-          "internal_bid"=>"45.00",
-          "project"=>"king kong",
-          "shot"=>"42",
-          "status"=>"scheduled",
-          "version"=>"128"
+          'created_date' => '2006-08-04 07:22',
+          'finish_date' => '2006-07-22',
+          'internal_bid' => '45.00',
+          'project' => 'king kong',
+          'shot' => '42',
+          'status' => 'scheduled',
+          'version' => '128'
         },
         {
-          "created_date"=>"2010-03-22 01:10",
-          "finish_date"=>"2010-05-15",
-          "internal_bid"=>"22.80",
-          "project"=>"the hobbit",
-          "shot"=>"40",
-          "status"=>"finished",
-          "version"=>"32"
-         },
-         {
-           "created_date"=>"2006-10-15 09:14",
-          "finish_date"=>"2006-07-22",
-          "internal_bid"=>"30.00",
-          "project"=>"king kong",
-          "shot"=>"42",
-          "status"=>"not required",
-          "version"=>"128"
-         }
+          'created_date' => '2010-03-22 01:10',
+          'finish_date' => '2010-05-15',
+          'internal_bid' => '22.80',
+          'project' => 'the hobbit',
+          'shot' => '40',
+          'status' => 'finished',
+          'version' => '32'
+        },
+        {
+          'created_date' => '2006-10-15 09:14',
+          'finish_date' => '2006-07-22',
+          'internal_bid' => '30.00',
+          'project' => 'king kong',
+          'shot' => '42',
+          'status' => 'not required',
+          'version' => '128'
+        }
       ]
 
-       @records_raw_data.each do |data| 
+      @records_raw_data.each do |data|
         @data_store.store_record(Project, data)
       end
     end
 
-    it { expect(@table.records.size).to eq(5)}
-     
+    it { expect(@table.records.size).to eq(5) }
+
     it { expect(@table.records).to all(be_an(Project)) }
 
-    it {expect(@table.records.first).to have_attributes(project: "the hobbit")}
+    it { expect(@table.records.first).to have_attributes(project: 'the hobbit') }
 
-    it "should set keep an index table for the projects table" do
-       expect(@table.index_hash).to eq({
-        "king kong.42.128"=>4, 
-        "lotr.03.16"=>1, 
-        "the hobbit.01.64"=>0, 
-        "the hobbit.40.32"=>3
-      }) 
+    it 'should set keep an index table for the projects table' do
+      expect(@table.index_hash).to eq(
+        'king kong.42.128' => 4,
+        'lotr.03.16' => 1,
+        'the hobbit.01.64' => 0,
+        'the hobbit.40.32' => 3
+      )
     end
-
   end
-
 end

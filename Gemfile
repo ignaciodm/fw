@@ -1,5 +1,7 @@
-source "https://rubygems.org"
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
 
 gem 'rspec'
-gem 'ruby-lint'
 gem 'rubocop'
+gem 'ruby-lint'

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class FileImporter
   attr_accessor :path, :separator
-  
+
   def initialize(path: path, separator: separator)
     @path = path
     @separator = separator
@@ -15,16 +17,15 @@ class FileImporter
   def each_line_as_hash
     lower_case_columns = []
 
-    File.open(@path, "r") do |f|
+    File.open(@path, 'r') do |f|
       f.each_with_index do |line, index|
         is_column_header_line = index == 0
 
-        if is_column_header_line 
-           @lower_case_columns = self.lower_case_columns(line)
-        else 
+        if is_column_header_line
+          @lower_case_columns = self.lower_case_columns(line)
+        else
           yield(build_line_hash(line))
         end
-        
       end
     end
   end

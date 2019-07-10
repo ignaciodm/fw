@@ -1,18 +1,20 @@
+# frozen_string_literal: true
+
 require 'table.rb'
 
 class DataStore
-   attr_accessor :tables
-  
+  attr_accessor :tables
+
   def initialize
     @tables = {}
   end
 
   def create_table(model_class)
-    table = Table.new(model: model_class) 
+    table = Table.new(model: model_class)
     yield(table)
 
     add_table_for_model(table, model_class)
-    
+
     table
   end
 
@@ -35,12 +37,12 @@ class DataStore
   #     f.each_with_index do |line, index|
   #       is_column_header_line = index == 0
 
-  #       if is_column_header_line 
+  #       if is_column_header_line
   #          @lower_case_columns = self.lower_case_columns(line)
-  #       else 
+  #       else
   #         yield(build_line_hash(line))
   #       end
-        
+
   #     end
   #   end
   # end
