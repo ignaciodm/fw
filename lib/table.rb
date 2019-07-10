@@ -5,7 +5,7 @@ require 'column.rb'
 class Table
   attr_accessor :name, :model_class, :columns, :records, :indexes, :index_hash
 
-  def initialize(model: model)
+  def initialize(model:)
     @name = model.to_s.downcase
     @model_class = model
     @columns = []

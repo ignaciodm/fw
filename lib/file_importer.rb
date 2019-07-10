@@ -3,7 +3,7 @@
 class FileImporter
   attr_accessor :path, :separator
 
-  def initialize(path: path, separator: separator)
+  def initialize(path:, separator:)
     @path = path
     @separator = separator
   end
