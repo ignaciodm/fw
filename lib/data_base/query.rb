@@ -7,6 +7,8 @@ class Query
                 :where_conditions,
                 :select_columns,
                 :sort_by_columns,
+                :group_by_columns,
+                :aggregate_functions,
                 :from_model_class
 
   CLAUSES = {
@@ -16,7 +18,14 @@ class Query
       records.map do |record|
         columns_to_return = {}
         columns.each do |column|
-          columns_to_return[column.to_sym] = record.send(column.to_sym)
+          # this seems wrong. Logic should be unified for one type.
+          # Instead of Hash, or Project Model, consider creating Result entity
+          columns_to_return[column.to_sym] = if record.is_a? Hash
+                                               record[column.to_sym] 
+                                             else
+                                               record.send(column) 
+                                             end
+          #   columns_to_return[column.to_sym] = record.send(column.to_sym)
         end
         columns_to_return
       end
@@ -38,10 +47,37 @@ class Query
       puts columns
       records.sort_by do |record|
         sort_by_values = columns.map { |column| record.send(column.to_sym) }
-        puts '=============sort_by_values'
-        puts sort_by_values
         sort_by_values
       end
+    end,
+    GROUP_BY: proc do |records, columns|
+      puts '=============group'
+      puts columns
+      column = columns.first # TODO: just one column for now
+      records.group_by(&column.to_sym)
+    end,
+    AGGREGATE: proc do |records_grouped_by, aggregate_functions|
+      puts '=============AGGREGATE'
+      puts aggregate_functions
+
+      records_grouped_by
+        .map do |_key, records|
+          sample = records.first
+          aggregate_functions_executed = aggregate_functions.map do |aggregate_function|
+            key = aggregate_function[:key]
+            function = aggregate_function[:function]
+            ret = {}
+            ret[key.to_sym] = records.map(&key.to_sym).map(&:to_f).send(function.to_sym) # TODO: logic should depend of field type
+            ret
+          end
+
+          puts 'sample'
+          puts sample
+          puts 'aggregate_functions_executed'
+          puts aggregate_functions_executed
+          puts [*sample.to_h, *aggregate_functions_executed.first].to_h # merge results with sample
+          [*sample.to_h, *aggregate_functions_executed.first].to_h
+        end
     end
   }.freeze
 
@@ -50,7 +86,13 @@ class Query
   end
 
   def select(columns)
-    @select_columns = columns
+    @select_columns = columns.map { |column| column.split(':').first }
+    @aggregate_functions = columns
+                           .map do |column|
+      key, function = column.split(':')
+      function ? { key: key, function: function } : nil
+    end.compact
+
     self
   end
 
@@ -64,6 +106,11 @@ class Query
     self
   end
 
+  def group_by(columns)
+    @group_by_columns = columns
+    self
+  end
+
   def from(model_class)
     @table = schema[model_class.to_key].table
     self
@@ -74,6 +121,14 @@ class Query
 
     if @where_conditions
       filtered_records = CLAUSES[:WHERE].call(filtered_records, @where_conditions)
+    end
+
+    if @group_by_columns
+      filtered_records = CLAUSES[:GROUP_BY].call(filtered_records, @group_by_columns)
+    end
+
+    if @aggregate_functions && !@aggregate_functions.empty?
+      filtered_records = CLAUSES[:AGGREGATE].call(filtered_records, @aggregate_functions)
     end
 
     if @sort_by_columns

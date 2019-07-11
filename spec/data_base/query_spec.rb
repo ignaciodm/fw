@@ -69,7 +69,7 @@ describe Query do
 
     indexes = @data_store.add_index(
       Project,
-      %i[project shot version],
+      %w[project shot version],
       unique: true
     )
     @index = indexes.first
@@ -86,7 +86,7 @@ describe Query do
 
     it 'should return columns specified on the select clause' do
       results = @data_store.new_query
-                           .select(%i[project shot version status])
+                           .select(%w[project shot version status])
                            .from(Project)
                            .run
 
@@ -100,7 +100,7 @@ describe Query do
 
     it 'should select specific columns and apply the where clause ' do
       results = @data_store.new_query
-                           .select(%i[project shot version status])
+                           .select(%w[project shot version status])
                            .where(finish_date: '2006-07-22')
                            .from(Project)
                            .run
@@ -112,21 +112,33 @@ describe Query do
 
     it 'should sort by specified columns and apply where clause' do
       results = @data_store.new_query
-                           .select(%i[project shot version status])
-                           .order_by(%i[finish_date internal_bid])
+                           .select(%w[project shot version status])
+                           .order_by(%w[finish_date internal_bid])
                            .from(Project)
                            .run
 
-      #             lotr,3,16,finished
-      #             king kong,42,128,not required
-      #             the hobbit,40,32,finished
-      #             the hobbit,1,64,scheduled
       expect(results).to eq(
         [
           { project: 'lotr', shot: '03', status: 'finished', version: '16' },
           { project: 'king kong',  shot: '42', status: 'not required', version: '128' },
           { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
           { project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' }
+        ]
+      )
+    end
+
+    it 'should apply sum by specific column after grouping by' do
+      results = @data_store.new_query
+                           .select(%w[project internal_bid:sum])
+                           .from(Project)
+                           .group_by(%w[project])
+                           .run
+
+      expect(results).to eq(
+        [
+          { project: 'the hobbit', internal_bid: 67.8 },
+          { project: 'lotr', internal_bid: 15.0 },
+          { project: 'king kong', internal_bid: 30.0 }
         ]
       )
     end
