@@ -3,15 +3,13 @@
 require 'column.rb'
 
 class Table
-  attr_accessor :name, :model_class, :columns, :records, :indexes, :index_hash
+  attr_accessor :name, :model_class, :columns, :records
 
   def initialize(model:)
     @name = model.to_s.downcase
     @model_class = model
     @columns = []
     @records = []
-    @indexes = []
-    @index_hash = {}
   end
 
   def add_column(type, name)
@@ -19,21 +17,11 @@ class Table
   end
 
   def add_record(record)
-    new_record = @model_class.new(*record)
-
-    @records << new_record # add validation
-
-    # TODO: , do this for each index in @indexes
-    added_record_index = @records.size - 1
-    index_key = @indexes.first[:keys].map do |key|
-      new_record.send(key.to_sym)
-    end.join('.')
-
-    @index_hash[index_key] = added_record_index
+    @records << record # add validation
   end
 
-  def add_combined_index(*keys, options)
-    @indexes << { keys: keys, options: options } # TODO: create model for index?
+  def on_each_record_with_index
+    records.each_with_index { |record, index| yield(record, index) }
   end
 
   def string(name)
@@ -42,5 +30,9 @@ class Table
 
   def integer(name)
     add_column Integer, name
+  end
+
+  def remove_record_by_index(index)
+    records.slice!(index)
   end
 end

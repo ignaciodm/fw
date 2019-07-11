@@ -2,6 +2,7 @@
 
 require 'data_store.rb'
 require 'project.rb'
+require 'index.rb'
 
 describe DataStore do
   before :each do
@@ -10,9 +11,10 @@ describe DataStore do
       t.string :project # max 64
       t.string :shot # max 64
       t.integer :version # 0 and 65535
-
-      t.add_combined_index :project, :shot, :version, unique: true
     end
+
+    indexes =  @data_store.add_index Project, [:project, :shot, :version], unique: true
+    @index = indexes.first
   end
 
   #  PROJECT: The project name or code name of the shot. (Text, max size 64 char)
@@ -33,9 +35,10 @@ describe DataStore do
 
   it { expect(@table.name).to eq('project') }
 
-  it 'should set the combined index as an array' do
-    expect(@table.indexes).to eq([{ keys: %i[project shot version], options: { unique: true } }])
-  end
+  it {expect(@data_store.schema.project.indexes.first).to eq(@index)}
+  # it {expect(@index).to be_an(Index)}
+  # it {expect(@index.keys).to eq([:project, :shot, :version])}
+  # it {expect(@index.options).to eq({unique:true})}
 
   describe 'when adding an array of json projects' do
     before :each do
@@ -92,19 +95,22 @@ describe DataStore do
       end
     end
 
-    it { expect(@table.records.size).to eq(5) }
+    it 'should set keep an index table for the projects table' do
+      expect(@data_store.schema.project.indexes.first.table).to eq(
+        'king kong.42.128' => 3,
+        'lotr.03.16' => 1,
+        'the hobbit.01.64' => 0,
+        'the hobbit.40.32' => 2
+      )
+    end
+
+    it 'should override records with the same combined key' do 
+       expect(@table.records.size).to eq(4) 
+    end
 
     it { expect(@table.records).to all(be_an(Project)) }
 
     it { expect(@table.records.first).to have_attributes(project: 'the hobbit') }
-
-    it 'should set keep an index table for the projects table' do
-      expect(@table.index_hash).to eq(
-        'king kong.42.128' => 4,
-        'lotr.03.16' => 1,
-        'the hobbit.01.64' => 0,
-        'the hobbit.40.32' => 3
-      )
-    end
+    
   end
 end
