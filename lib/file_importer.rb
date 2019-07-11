@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# add comment
 class FileImporter
   attr_accessor :path, :separator
 
@@ -17,7 +18,7 @@ class FileImporter
   def each_line_as_hash
     File.open(@path, 'r') do |f|
       f.each_with_index do |line, index|
-        is_column_header_line = index == 0
+        is_column_header_line = index.zero?
 
         if is_column_header_line
           @lower_case_columns = lower_case_columns(line)
