@@ -94,14 +94,11 @@ describe Query do
         [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' },
          { project: 'lotr', shot: '03', status: 'finished', version: '16' },
          { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
-         { project: 'king kong',
-           shot: '42',
-           status: 'not required',
-           version: '128' }]
+         { project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
       )
     end
 
-    it 'should select specific columsn and apply the where clause ' do
+    it 'should select specific columns and apply the where clause ' do
       results = @data_store.new_query
                            .select(%i[project shot version status])
                            .where(finish_date: '2006-07-22')
@@ -109,11 +106,27 @@ describe Query do
                            .run
 
       expect(results).to eq(
+        [{ project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
+      )
+    end
+
+    it 'should sort by specified columns and apply where clause' do
+      results = @data_store.new_query
+                           .select(%i[project shot version status])
+                           .order_by(%i[finish_date internal_bid])
+                           .from(Project)
+                           .run
+
+      #             lotr,3,16,finished
+      #             king kong,42,128,not required
+      #             the hobbit,40,32,finished
+      #             the hobbit,1,64,scheduled
+      expect(results).to eq(
         [
-          { project: 'king kong',
-            shot: '42',
-            status: 'not required',
-            version: '128' }
+          { project: 'lotr', shot: '03', status: 'finished', version: '16' },
+          { project: 'king kong',  shot: '42', status: 'not required', version: '128' },
+          { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
+          { project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' }
         ]
       )
     end
