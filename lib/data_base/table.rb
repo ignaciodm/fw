@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'time'
 require 'data_base/column.rb'
 
 # add comment
@@ -31,6 +32,18 @@ class Table
 
   def integer(name)
     add_column Integer, name
+  end
+
+  def float(name)
+    add_column Float, name
+  end
+
+  def date(name)
+    add_column Date, name
+  end
+
+  def timestamp(name)
+    add_column Time, name
   end
 
   def remove_record_by_index(index)

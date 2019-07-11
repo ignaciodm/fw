@@ -59,6 +59,10 @@ describe Store do
       t.string :project # max 64
       t.string :shot # max 64
       t.integer :version # 0 and 65535
+      t.string :status # max 32
+      t.date :finish_date #YYYY-MM-DD 
+      t.float :internal_bid
+      t.timestamp :created_date  #YYYY-MM-DD HH:MM format
     end
 
     indexes = @data_store.add_index(
@@ -69,7 +73,7 @@ describe Store do
     @index = indexes.first
   end
 
-  it { expect(@table.columns.size).to eq(3) }
+  it { expect(@table.columns.size).to eq(7) }
   it { expect(@table.columns).to all(be_an(Column)) }
   it {
     expect(@table.columns.first)
