@@ -2,6 +2,7 @@
 
 require 'data_base.rb'
 require 'data_base/store.rb'
+require 'data_base/query.rb'
 # require 'project.rb'
 # require 'index.rb'
 
@@ -52,7 +53,8 @@ RAW_DATA = [
     'version' => '128'
   }
 ].freeze
-describe Store do
+
+describe Query do
   before :each do
     @data_store = Store.new
     @table = @data_store.create_table Project do |t|
@@ -73,29 +75,7 @@ describe Store do
     @index = indexes.first
   end
 
-  it { expect(@table.columns.size).to eq(7) }
-  it { expect(@table.columns).to all(be_an(Column)) }
-  it {
-    expect(@table.columns.first)
-      .to have_attributes(type: String, name: 'project')
-  }
-  it {
-    expect(@table.columns[1])
-      .to have_attributes(type: String, name: 'shot')
-  }
-  it {
-    expect(@table.columns[2])
-      .to have_attributes(type: Integer, name: 'version')
-  }
-
-  it { expect(@table.name).to eq('project') }
-
-  it { expect(@data_store.schema.project.indexes.first).to eq(@index) }
-  # it {expect(@index).to be_an(Index)}
-  # it {expect(@index.keys).to eq([:project, :shot, :version])}
-  # it {expect(@index.options).to eq({unique:true})}
-
-  describe 'when adding an array of json projects' do
+  describe 'when querying' do
     before :each do
       @records_raw_data = RAW_DATA
 
@@ -104,24 +84,38 @@ describe Store do
       end
     end
 
-    it 'should set keep an index table for the projects table' do
-      expect(@data_store.schema.project.indexes.first.table).to eq(
-        'king kong.42.128' => 3,
-        'lotr.03.16' => 1,
-        'the hobbit.01.64' => 0,
-        'the hobbit.40.32' => 2
+    it 'should return columns specified on the select clause' do
+      results = @data_store.new_query
+                           .select(%i[project shot version status])
+                           .from(Project)
+                           .run
+
+      expect(results).to eq(
+        [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' },
+         { project: 'lotr', shot: '03', status: 'finished', version: '16' },
+         { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
+         { project: 'king kong',
+           shot: '42',
+           status: 'not required',
+           version: '128' }]
       )
     end
 
-    it 'should override records with the same combined key' do
-      expect(@table.records.size).to eq(4)
+    it 'should select specific columsn and apply the where clause ' do
+      results = @data_store.new_query
+                           .select(%i[project shot version status])
+                           .where(finish_date: '2006-07-22')
+                           .from(Project)
+                           .run
+
+      expect(results).to eq(
+        [
+          { project: 'king kong',
+            shot: '42',
+            status: 'not required',
+            version: '128' }
+        ]
+      )
     end
-
-    it { expect(@table.records).to all(be_an(Project)) }
-
-    it {
-      expect(@table.records.first)
-        .to have_attributes(project: 'the hobbit')
-    }
   end
 end

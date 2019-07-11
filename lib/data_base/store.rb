@@ -2,6 +2,7 @@
 
 require 'data_base/table.rb'
 require 'data_base/index.rb'
+require 'data_base/query.rb'
 require 'ostruct'
 
 # add comment
@@ -27,19 +28,24 @@ class Store
     end
   end
 
+  def new_query
+    puts schema
+    Query.new(schema)
+  end
+
   def store_record(model_class, data)
     on_schema_context_for_model(model_class) do |context|
       new_record = model_class.new(*data)
       table = context.table
       primary_index = context.indexes.first # TODO: identify is unique index
 
-      unless primary_index.unique?(new_record)
+      if primary_index && !primary_index.unique?(new_record)
         table.remove_record_by_index(primary_index.index_for_record(new_record))
       end
 
       table.add_record(new_record)
 
-      primary_index.update_with(table)
+      primary_index&.update_with(table)
     end
   end
 
