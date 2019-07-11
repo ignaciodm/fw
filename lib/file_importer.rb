@@ -20,7 +20,7 @@ class FileImporter
         is_column_header_line = index == 0
 
         if is_column_header_line
-          @lower_case_columns = self.lower_case_columns(line)
+          @lower_case_columns = lower_case_columns(line)
         else
           yield(build_line_hash(line))
         end
