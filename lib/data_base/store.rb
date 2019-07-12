@@ -30,14 +30,11 @@ class Store
   end
 
   def new_query
-    puts schema
-    Query.new(schema)
+    Query.new
   end
 
   def store_record(model_class, data)
     on_schema_context_for_model(model_class) do |context|
-      puts '...........DATA......'
-      puts *data
       new_record = model_class.new(*data)
       table = context.table
       primary_index = context.indexes.first # TODO: identify is unique index

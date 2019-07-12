@@ -19,9 +19,6 @@ class Table
   end
 
   def add_record(record)
-    puts '......ADD_RECORD'
-    puts record.internal_bid
-    puts record.internal_bid.class
     @records << record # add validation
   end
 
