@@ -84,63 +84,151 @@ describe Query do
       end
     end
 
-    it 'should return columns specified on the select clause' do
-      results = @data_store.new_query
-                           .select(%w[project shot version status])
-                           .from(Project)
-                           .run
+    describe 'select' do
+      it 'should return columns specified on the select clause' do
+        results = @data_store.new_query
+                             .select(%w[project shot version status])
+                             .from(Project)
+                             .run
 
-      expect(results).to eq(
-        [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' },
-         { project: 'lotr', shot: '03', status: 'finished', version: '16' },
-         { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
-         { project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
-      )
+        expect(results).to eq(
+          [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' },
+           { project: 'lotr', shot: '03', status: 'finished', version: '16' },
+           { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
+           { project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
+        )
+      end
     end
 
-    it 'should select specific columns and apply the where clause ' do
-      results = @data_store.new_query
-                           .select(%w[project shot version status])
-                           .where(finish_date: '2006-07-22')
-                           .from(Project)
-                           .run
+    describe 'where' do
+      it 'should select specific columns and apply the where clause ' do
+        results = @data_store.new_query
+                             .select(%w[project shot version status])
+                             .where(finish_date: '2006-07-22')
+                             .from(Project)
+                             .run
 
-      expect(results).to eq(
-        [{ project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
-      )
+        expect(results).to eq(
+          [{ project: 'king kong', shot: '42', status: 'not required', version: '128' }]
+        )
+      end
     end
 
-    it 'should sort by specified columns and apply where clause' do
-      results = @data_store.new_query
-                           .select(%w[project shot version status])
-                           .order_by(%w[finish_date internal_bid])
-                           .from(Project)
-                           .run
+    describe 'sort_by' do
+      it 'should sort by specified columns and apply where clause' do
+        results = @data_store.new_query
+                             .select(%w[project shot version status])
+                             .order_by(%w[finish_date internal_bid])
+                             .from(Project)
+                             .run
 
-      expect(results).to eq(
-        [
-          { project: 'lotr', shot: '03', status: 'finished', version: '16' },
-          { project: 'king kong',  shot: '42', status: 'not required', version: '128' },
-          { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
-          { project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' }
-        ]
-      )
+        expect(results).to eq(
+          [
+            { project: 'lotr', shot: '03', status: 'finished', version: '16' },
+            { project: 'king kong',  shot: '42', status: 'not required', version: '128' },
+            { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
+            { project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' }
+          ]
+        )
+      end
     end
 
-    it 'should apply sum by specific column after grouping by' do
-      results = @data_store.new_query
-                           .select(%w[project internal_bid:sum])
-                           .from(Project)
-                           .group_by(%w[project])
-                           .run
+    describe 'group_by and aggregated functions' do
+      it 'should apply sum by specific column after grouping by' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:sum])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
 
-      expect(results).to eq(
-        [
-          { project: 'the hobbit', internal_bid: 67.8 },
-          { project: 'lotr', internal_bid: 15.0 },
-          { project: 'king kong', internal_bid: 30.0 }
-        ]
-      )
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: 67.8 },
+            { project: 'lotr', internal_bid: 15.0 },
+            { project: 'king kong', internal_bid: 30.0 }
+          ]
+        )
+      end
+
+      it 'should get the min for a column after grouping by' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:min])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: 22.8 },
+            { project: 'lotr', internal_bid: 15.0 },
+            { project: 'king kong', internal_bid: 30.0 }
+          ]
+        )
+      end
+
+      it 'should get the max for a column after grouping by' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:max])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: 45 },
+            { project: 'lotr', internal_bid: 15.0 },
+            { project: 'king kong', internal_bid: 30.0 }
+          ]
+        )
+      end
+
+      it 'should apply max by specific column after grouping by' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:max])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: 45 },
+            { project: 'lotr', internal_bid: 15.0 },
+            { project: 'king kong', internal_bid: 30.0 }
+          ]
+        )
+      end
+
+      it 'should count the amount of distinct values in a column after grouping by' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:uniq:count])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: 2 },
+            { project: 'lotr', internal_bid: 1 },
+            { project: 'king kong', internal_bid: 1 }
+          ]
+        )
+      end
+
+      # it 'should fail in group_by without aggregate functions' do
+      #   results = @data_store.new_query
+      #                        .select(%w[project internal_bid])
+      #                        .from(Project)
+      #                        .group_by(%w[project])
+      #                        .run
+
+      #   expect(results).to eq(
+      #     [
+      #       { project: 'the hobbit', internal_bid: 45 },
+      #       { project: 'lotr', internal_bid: 15.0 },
+      #       { project: 'king kong', internal_bid: 30.0 }
+      #     ]
+      #   )
+      # end
     end
   end
 end
