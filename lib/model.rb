@@ -1,8 +1,17 @@
 # frozen_string_literal: true
 
+require 'model_class_methods.rb'
+
 # add comment
 module Model
-  def to_key
-    to_s.downcase.to_sym
+  def self.included(base)
+    base.extend(ModelClassMethods)
+  end
+
+  def initialize(*args)
+    args.each do |key, v|
+      value = self.class.value_for(key, v)
+      instance_variable_set("@#{key}", value) unless v.nil?
+    end
   end
 end
