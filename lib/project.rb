@@ -4,7 +4,7 @@ require 'model.rb'
 
 # add comment
 class Project
-  extend Model
+  include Model
 
   attr_accessor :project,
                 :shot,
@@ -14,12 +14,6 @@ class Project
                 :internal_bid,
                 :created_date
 
-  def initialize(*args)
-    args.each do |k, v|
-      instance_variable_set("@#{k}", v) unless v.nil?
-    end
-  end
-
   def to_h
     { project: project,
       shot: shot,
@@ -28,5 +22,15 @@ class Project
       finish_date: finish_date,
       internal_bid: internal_bid,
       created_date: created_date }
+  end
+
+  def to_query_result
+    { project: project,
+      shot: shot,
+      version: version,
+      status: status,
+      finish_date: finish_date.strftime('%F'),
+      internal_bid: internal_bid,
+      created_date: created_date.strftime('%F %H:%M') }
   end
 end

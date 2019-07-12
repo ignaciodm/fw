@@ -15,6 +15,7 @@ class Store
 
   def create_table(model_class)
     table = Table.new(model: model_class)
+    model_class.table = table
     yield(table)
 
     add_table_for_model(table, model_class)
@@ -35,6 +36,8 @@ class Store
 
   def store_record(model_class, data)
     on_schema_context_for_model(model_class) do |context|
+      puts '...........DATA......'
+      puts *data
       new_record = model_class.new(*data)
       table = context.table
       primary_index = context.indexes.first # TODO: identify is unique index
@@ -45,7 +48,7 @@ class Store
 
       table.add_record(new_record)
 
-      primary_index&.update_with(table)
+      primary_index.update_with(table)
     end
   end
 

@@ -13,18 +13,15 @@ class Query
 
   CLAUSES = {
     SELECT: proc do |records, columns|
-      #   puts '=============table'
-      #   puts records
-      records.map do |record|
+      puts 'FILTERED_RECORDS SELECT'
+      puts records.first.internal_bid
+      puts records.first.internal_bid.class
+      records.map(&:to_query_result).map do |record|
         columns_to_return = {}
         columns.each do |column|
           # this seems wrong. Logic should be unified for one type.
           # Instead of Hash, or Project Model, consider creating Result entity
-          columns_to_return[column.to_sym] = if record.is_a? Hash
-                                               record[column.to_sym]
-                                             else
-                                               record.send(column)
-                                             end
+          columns_to_return[column.to_sym] = record[column.to_sym]
           #   columns_to_return[column.to_sym] = record.send(column.to_sym)
         end
         columns_to_return
@@ -38,7 +35,8 @@ class Query
         conditions.all? do |column, value|
           # TODO: consider evaluating value in the context
           # of a column type (date, text, timestamp, etc)
-          record.send(column) == value
+
+          record.send(column) == record.class.value_for(column, value)
         end
       end
     end,
@@ -57,8 +55,8 @@ class Query
       records.group_by(&column.to_sym)
     end,
     AGGREGATE: proc do |records_grouped_by, aggregate_functions|
-      #   puts '=============AGGREGATE'
-      #   puts aggregate_functions
+      puts '=============AGGREGATE'
+      puts aggregate_functions
       #   puts records_grouped_by
 
       records_grouped_by
@@ -69,22 +67,23 @@ class Query
             # puts 'aggregate_function_by_key'
             key = aggregate_function_by_key[:key]
             functions = aggregate_function_by_key[:functions]
-            ret = {}
-            ret[key.to_sym] = records.map(&key.to_sym)
-                                     .map(&:to_f)
+            all_values_in_column = records.map(&key.to_sym)
 
             # TODO: logic should depend of field type
-            # TODO should apply al functions without the need of storing on previous value.
-            functions.each { |f| ret[key.to_sym] = ret[key.to_sym].send(f.to_sym) }
-            ret
+            result = {}
+            result[key.to_sym] = functions.reduce(all_values_in_column) { |acc, f| acc.send(f.to_sym) }
+            result
           end
 
-          #   puts 'sample'
-          #   puts sample
-          #   puts 'aggregate_functions_executed'
-          #   puts aggregate_functions_executed
-          #   puts [*sample.to_h, *aggregate_functions_executed.first].to_h # merge results with sample
-          [*sample.to_h, *aggregate_functions_executed.first].to_h
+          puts '.................................sample'
+          puts sample
+
+          merged_attributes = [sample.to_h, aggregate_functions_executed].flatten.reduce do |merged, hash|
+            [*merged, *hash].to_h
+            # *op1.to_h, *op2.to_h].to_h
+          end
+
+          sample.class.new(*merged_attributes)
         end
     end
   }.freeze
@@ -131,23 +130,53 @@ class Query
   def run
     filtered_records = @table.records
 
+    puts 'FILTERED_RECORDS'
+    puts filtered_records.first
+    puts filtered_records.first.internal_bid
+    puts filtered_records.first.internal_bid.class
+
     if @where_conditions
       filtered_records = CLAUSES[:WHERE].call(filtered_records, @where_conditions)
     end
+
+    puts 'FILTERED_RECORDS WHERE'
+    puts filtered_records.first
+    puts filtered_records.first.internal_bid
+    puts filtered_records.first.internal_bid.class
 
     if @group_by_columns
       filtered_records = CLAUSES[:GROUP_BY].call(filtered_records, @group_by_columns)
     end
 
+    puts 'FILTERED_RECORDS GROUP-BY'
+    # puts filtered_records.first.first
+    # puts filtered_records.first.values.first.internal_bid
+    # puts filtered_records.first.values.first.internal_bid.class
+
     if @aggregate_functions && !@aggregate_functions.empty?
       filtered_records = CLAUSES[:AGGREGATE].call(filtered_records, @aggregate_functions)
     end
+
+    puts 'FILTERED_RECORDS AGGREGATE'
+    puts filtered_records.first
+    puts filtered_records.first.internal_bid
+    puts filtered_records.first.internal_bid.class
 
     if @sort_by_columns
       filtered_records = CLAUSES[:ORDER_BY].call(filtered_records, @sort_by_columns)
     end
 
+    puts 'FILTERED_RECORDS ORDER_BY'
+    puts filtered_records.first
+    puts filtered_records.first.internal_bid
+    puts filtered_records.first.internal_bid.class
+
     filtered_records = CLAUSES[:SELECT].call(filtered_records, @select_columns) if @select_columns
+
+    puts 'FILTERED_RECORDS SELECT'
+    puts filtered_records.first
+    # puts filtered_records.first.internal_bid
+    # puts filtered_records.first.internal_bid.class
 
     filtered_records
   end

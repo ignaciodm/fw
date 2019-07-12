@@ -85,6 +85,43 @@ describe Query do
     end
 
     describe 'select' do
+      it 'should return all columns when no select clause is specified' do
+        results = @data_store.new_query
+                             .from(Project)
+                             .run
+
+        expect(results.map(&:to_query_result)).to eq([
+                                                       { created_date: '2010-04-01 13:35',
+                                                         finish_date: '2010-05-15',
+                                                         internal_bid: 45.0,
+                                                         project: 'the hobbit',
+                                                         shot: '01',
+                                                         status: 'scheduled',
+                                                         version: 64 },
+                                                       { created_date: '2001-04-01 06:47',
+                                                         finish_date: '2001-05-15',
+                                                         internal_bid: 15.0,
+                                                         project: 'lotr',
+                                                         shot: '03',
+                                                         status: 'finished',
+                                                         version: 16 },
+                                                       { created_date: '2010-03-22 01:10',
+                                                         finish_date: '2010-05-15',
+                                                         internal_bid: 22.80,
+                                                         project: 'the hobbit',
+                                                         shot: '40',
+                                                         status: 'finished',
+                                                         version: 32 },
+                                                       { created_date: '2006-10-15 09:14',
+                                                         finish_date: '2006-07-22',
+                                                         internal_bid: 30.00,
+                                                         project: 'king kong',
+                                                         shot: '42',
+                                                         status: 'not required',
+                                                         version: 128 }
+                                                     ])
+      end
+
       it 'should return columns specified on the select clause' do
         results = @data_store.new_query
                              .select(%w[project shot version status])
@@ -92,10 +129,10 @@ describe Query do
                              .run
 
         expect(results).to eq(
-          [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' },
-           { project: 'lotr', shot: '03', status: 'finished', version: '16' },
-           { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
-           { project: 'king kong',  shot: '42', status: 'not required', version: '128' }]
+          [{ project: 'the hobbit', shot: '01', status: 'scheduled', version: 64 },
+           { project: 'lotr', shot: '03', status: 'finished', version: 16 },
+           { project: 'the hobbit', shot: '40', status: 'finished', version: 32 },
+           { project: 'king kong',  shot: '42', status: 'not required', version: 128 }]
         )
       end
     end
@@ -109,7 +146,7 @@ describe Query do
                              .run
 
         expect(results).to eq(
-          [{ project: 'king kong', shot: '42', status: 'not required', version: '128' }]
+          [{ project: 'king kong', shot: '42', status: 'not required', version: 128 }]
         )
       end
     end
@@ -124,10 +161,10 @@ describe Query do
 
         expect(results).to eq(
           [
-            { project: 'lotr', shot: '03', status: 'finished', version: '16' },
-            { project: 'king kong',  shot: '42', status: 'not required', version: '128' },
-            { project: 'the hobbit', shot: '40', status: 'finished', version: '32' },
-            { project: 'the hobbit', shot: '01', status: 'scheduled', version: '64' }
+            { project: 'lotr', shot: '03', status: 'finished', version: 16 },
+            { project: 'king kong',  shot: '42', status: 'not required', version: 128 },
+            { project: 'the hobbit', shot: '40', status: 'finished', version: 32 },
+            { project: 'the hobbit', shot: '01', status: 'scheduled', version: 64 }
           ]
         )
       end
@@ -150,7 +187,7 @@ describe Query do
         )
       end
 
-      it 'should get the min for a column after grouping by' do
+      it 'should get the min for a column after grouping by', :focus do
         results = @data_store.new_query
                              .select(%w[project internal_bid:min])
                              .from(Project)
@@ -175,23 +212,7 @@ describe Query do
 
         expect(results).to eq(
           [
-            { project: 'the hobbit', internal_bid: 45 },
-            { project: 'lotr', internal_bid: 15.0 },
-            { project: 'king kong', internal_bid: 30.0 }
-          ]
-        )
-      end
-
-      it 'should apply max by specific column after grouping by' do
-        results = @data_store.new_query
-                             .select(%w[project internal_bid:max])
-                             .from(Project)
-                             .group_by(%w[project])
-                             .run
-
-        expect(results).to eq(
-          [
-            { project: 'the hobbit', internal_bid: 45 },
+            { project: 'the hobbit', internal_bid: 45.0 },
             { project: 'lotr', internal_bid: 15.0 },
             { project: 'king kong', internal_bid: 30.0 }
           ]
@@ -211,6 +232,52 @@ describe Query do
             { project: 'lotr', internal_bid: 1 },
             { project: 'king kong', internal_bid: 1 }
           ]
+        )
+      end
+
+      it 'should collect the distinct values in a number column' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:uniq])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', internal_bid: [45.0, 22.8] },
+            { project: 'lotr', internal_bid: [15.0] },
+            { project: 'king kong', internal_bid: [30.0] }
+          ]
+        )
+      end
+
+      it 'should collect the distinct values in a text column' do
+        results = @data_store.new_query
+                             .select(%w[project shot:uniq])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [
+            { project: 'the hobbit', shot: %w[01 40] },
+            { project: 'lotr', shot: ['03'] },
+            { project: 'king kong', shot: ['42'] }
+          ]
+        )
+      end
+
+      it 'should collect the distinct values in a text column and a number column' do
+        results = @data_store.new_query
+                             .select(%w[project internal_bid:uniq shot:uniq])
+                             .from(Project)
+                             .group_by(%w[project])
+                             .run
+
+        expect(results).to eq(
+          [{ internal_bid: [45.0, 22.8], project: 'the hobbit', shot: %w[01 40] },
+           { internal_bid: [15.0], project: 'lotr', shot: ['03'] },
+           { internal_bid: [30.0], project: 'king kong', shot: ['42'] }]
         )
       end
 

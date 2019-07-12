@@ -19,6 +19,9 @@ class Table
   end
 
   def add_record(record)
+    puts '......ADD_RECORD'
+    puts record.internal_bid
+    puts record.internal_bid.class
     @records << record # add validation
   end
 
@@ -48,5 +51,10 @@ class Table
 
   def remove_record_by_index(index)
     records.slice!(index)
+  end
+
+  def value_casted_to_column_type(key, value)
+    column = columns.find { |c| c.name.to_sym == key.to_sym }
+    column.value_casted_to_type(value)
   end
 end
