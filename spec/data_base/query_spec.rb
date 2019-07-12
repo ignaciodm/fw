@@ -168,6 +168,21 @@ describe Query do
           ]
         )
       end
+
+      it 'should sort by timestamp column and where clause' do
+        results = @data_store.new_query
+                             .select(%w[project created_date])
+                             .order_by(%w[created_date])
+                             .from(Project)
+                             .run
+
+        expect(results).to eq(
+          [{ created_date: '2001-04-01 06:47', project: 'lotr' },
+           { created_date: '2006-10-15 09:14', project: 'king kong' },
+           { created_date: '2010-03-22 01:10', project: 'the hobbit' },
+           { created_date: '2010-04-01 13:35', project: 'the hobbit' }]
+        )
+      end
     end
 
     describe 'group_by and aggregated functions' do
