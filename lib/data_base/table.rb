@@ -15,7 +15,7 @@ class Table
   end
 
   def add_column(type, name)
-    @columns << Column.new(type: type, name: name.to_s)
+    @columns << Column::Base.column_for(type, name)
   end
 
   def add_record(record)

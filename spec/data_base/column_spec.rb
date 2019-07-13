@@ -5,7 +5,7 @@ require 'data_base/column.rb'
 describe 'Column' do
   describe 'String columns' do
     before :each do
-      @column = Column.new(type: String, name: 'name')
+      @column = Column::String.new(name: 'name')
     end
 
     it { expect(@column.value_casted_to_type('some string')).to be('some string') }
@@ -13,7 +13,7 @@ describe 'Column' do
 
   describe 'Integer columns' do
     before :each do
-      @column = Column.new(type: Integer, name: 'name')
+      @column = Column::Integer.new(name: 'name')
     end
 
     it { expect(@column.value_casted_to_type('123')).to be(123) }
@@ -21,7 +21,7 @@ describe 'Column' do
 
   describe 'Float columns' do
     before :each do
-      @column = Column.new(type: Float, name: 'name')
+      @column = Column::Float.new(name: 'name')
     end
 
     it { expect(@column.value_casted_to_type('123.45')).to be(123.45) }
@@ -29,7 +29,7 @@ describe 'Column' do
 
   describe 'Date columns' do
     before :each do
-      @column = Column.new(type: Date, name: 'name')
+      @column = Column::Date.new(name: 'name')
     end
 
     it { expect(@column.value_casted_to_type('2010-05-15')).to eq(Date.parse('2010-05-15')) }
@@ -37,7 +37,7 @@ describe 'Column' do
 
   describe 'Time columns' do
     before :each do
-      @column = Column.new(type: Time, name: 'name')
+      @column = Column::Time.new(name: 'name')
     end
 
     it { expect(@column.value_casted_to_type('2010-04-01 13:35')).to eq(Time.parse('2010-04-01 13:35')) }
