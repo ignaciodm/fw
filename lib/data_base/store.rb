@@ -15,7 +15,7 @@ class Store
 
   def create_table(model_class)
     table = Table.new(model: model_class)
-    model_class.table = table
+    model_class.table = table #binding model to table
     yield(table)
 
     add_table_for_model(table, model_class)
@@ -37,15 +37,21 @@ class Store
     on_schema_context_for_model(model_class) do |context|
       new_record = model_class.new(*data)
       table = context.table
-      primary_index = context.indexes.first # TODO: identify is unique index
 
-      if primary_index && !primary_index.unique?(new_record)
-        table.remove_record_by_index(primary_index.index_for_record(new_record))
+      primary_index = context.indexes.first # TODO: identify if unique index
+
+      begin
+
+        if primary_index && !primary_index.unique?(new_record)
+          table.remove_record_by_index(primary_index.index_for_record(new_record))
+        end
+
+        table.add_record(new_record)
+        primary_index.update_with(table)
+      rescue StandardError => e
+        raise e
       end
-
-      table.add_record(new_record)
-
-      primary_index.update_with(table)
+     
     end
   end
 

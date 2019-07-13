@@ -14,6 +14,8 @@ class Project
                 :internal_bid,
                 :created_date
 
+  validate_attr :project, length: {max: 15}
+
   def to_h
     { project: project,
       shot: shot,

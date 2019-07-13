@@ -4,9 +4,9 @@ class Select
   #   include Clause
 
   def execute(records, selected_columns)
-    puts 'FILTERED_RECORDS SELECT'
-    puts records.first.internal_bid
-    puts records.first.internal_bid.class
+    # puts 'FILTERED_RECORDS SELECT'
+    # puts records.first.internal_bid
+    # puts records.first.internal_bid.class
 
     selected_columns = selected_columns.map(&:to_sym)
     records

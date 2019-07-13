@@ -14,4 +14,9 @@ module Model
       instance_variable_set("@#{key}", value) unless v.nil?
     end
   end
+
+  def validate!
+    #true
+    self.class.run_validations(self)
+  end
 end

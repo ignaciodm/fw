@@ -128,4 +128,19 @@ describe Store do
         .to have_attributes(project: 'the hobbit')
     }
   end
+
+  describe 'when adding invalid projects' do
+
+    it 'should not add projects with invalid project title' do
+      expect { @data_store.store_record(Project, {project: 'loooooooooooooooooooooong'})}.to raise_error
+    end
+
+    it 'should not add projects with invalid project title' do
+      begin
+         @data_store.store_record(Project, {project: 'loooooooooooooooooooooong'})
+      rescue => RecordInvalid
+        expect(@table.records.size).to eq(0)
+      end
+    end
+  end
 end
