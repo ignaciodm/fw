@@ -16,18 +16,7 @@ module Column
     end
 
     def self.column_for(type, name)
-      case type.to_s
-      when 'Date'
-        Column::Date.new(name: name.to_s)
-      when 'Time'
-        Column::Time.new(name: name.to_s)
-      when 'Float'
-        Column::Float.new(name: name.to_s)
-      when 'Integer'
-        Column::Integer.new(name: name.to_s)
-      else
-        Column::String.new(name: name.to_s)
-      end
+      Column.const_get(type.to_s).new(name: name.to_s)
     end
   end
 end

@@ -80,13 +80,17 @@ class Query
   private
 
   def build_select_columns(columns)
+    return unless columns
+
     @select_columns = columns.map { |column| column.split(':').first }
   end
 
   def build_aggregate_functios(columns)
+    return unless columns
+
     @aggregate_functions = columns.map do |column|
       key, *functions = column.split(':')
       functions.empty? ? nil : { key: key, functions: functions }
     end.compact
- end
+  end
 end

@@ -37,7 +37,8 @@ module ModelClassMethods
   def validate_attr(attr, *options)
     validation = proc do |record|
       column = table.column_for(attr)
-      column.is_valid?(record.send(attr), *options)
+
+      column.valid?(record.send(attr), *options)
     end
 
     add_validation(validation)

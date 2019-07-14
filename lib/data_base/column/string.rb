@@ -13,7 +13,7 @@ module Column
       value.to_s
     end
 
-    def is_valid?(value, options)
+    def valid?(value, options)
       return true unless options
 
       if options[:length]

@@ -1,0 +1,32 @@
+How to use this command line query tool? 
+
+Here are a few examples: 
+
+ ruby query.rb -s 
+
+ ruby query.rb -s PROJECT,SHOT,VERSION 
+
+ ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -o FINISH_DATE,INTERNAL_BID 
+
+ ruby query.rb -s PROJECT,SHOT:count -g PROJECT 
+
+ ruby query.rb -s PROJECT,INTERNAL_BID:min,SHOT:max -g PROJECT 
+
+ ruby query.rb -s PROJECT,INTERNAL_BID:sum,SHOT:collect -g PROJECT 
+
+ ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -f FINISH_DATE=2006-07-22 
+
+ ruby query.rb -s PROJECT,INTERNAL_BID:sum,SHOT:collect -g PROJECT 
+
+ ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -o FINISH_DATE,INTERNAL_BID 
+
+
+Options:
+1) -s (select) comma separated list. can  be empty
+supported aggregated functions: ["min", "max", "collect", "count", "sum"]
+
+2) -f (filter) comma separated list 
+
+3) -o (order by) comma separated list 
+
+4) -g (group_by) only one group supported 

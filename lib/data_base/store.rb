@@ -40,16 +40,12 @@ class Store
 
       primary_index = context.indexes.first # TODO: identify if unique index
 
-      begin
-        if primary_index && !primary_index.unique?(new_record)
-          table.remove_record_by_index(primary_index.index_for_record(new_record))
-        end
-
-        table.add_record(new_record)
-        primary_index.update_with(table)
-      rescue StandardError => e
-        raise e
+      if primary_index && !primary_index.unique?(new_record)
+        table.remove_record_by_index(primary_index.index_for_record(new_record))
       end
+
+      table.add_record(new_record)
+      primary_index.update_with(table)
     end
   end
 
