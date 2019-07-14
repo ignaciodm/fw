@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'time'
-require 'data_base/column.rb'
+require_relative '../column.rb'
 
 # add comment
 module Column
   class Date < Base
-
     def self.type
       ::Date
     end

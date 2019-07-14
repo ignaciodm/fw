@@ -10,8 +10,8 @@ module Column
     end
 
     def value_casted_to_type(value)
-      return value if !value.is_a?(::String)
-        
+      return value unless value.is_a?(::String)
+
       value_for(value)
     end
 
@@ -29,12 +29,11 @@ module Column
         Column::String.new(name: name.to_s)
       end
     end
-
   end
 end
 
-require 'data_base/column/string.rb'
-require 'data_base/column/date.rb'
-require 'data_base/column/time.rb'
-require 'data_base/column/float.rb'
-require 'data_base/column/integer.rb'
+require_relative 'column/string.rb'
+require_relative 'column/date.rb'
+require_relative 'column/time.rb'
+require_relative 'column/float.rb'
+require_relative 'column/integer.rb'

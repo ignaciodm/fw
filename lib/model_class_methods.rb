@@ -1,14 +1,13 @@
 # frozen_string_literal: true
 
 class RecordInvalid < StandardError
-  def initialize(msg="My default message")
+  def initialize(msg = 'My default message')
     super
   end
 end
 
 # add comment
 module ModelClassMethods
-
   @@validations = []
 
   def table
@@ -24,7 +23,7 @@ module ModelClassMethods
   end
 
   def add_validation(validation)
-    self.validations << validation
+    validations << validation
   end
 
   def to_key
@@ -35,32 +34,19 @@ module ModelClassMethods
     table.value_casted_to_column_type(key, value)
   end
 
-  def validate_attr(attr, *options) 
-
+  def validate_attr(attr, *options)
     validation = proc do |record|
-      puts "-----------VALIDATION"
-      puts "-----------ATTR"
-      puts attr
-      puts "-----------options"
-      puts options
-      puts options.class
-      puts '"-----------table'
-      puts table
-
       column = table.column_for(attr)
-      puts '"-----------column'
-      puts column
-
       column.is_valid?(record.send(attr), *options)
     end
 
-    self.add_validation(validation)
+    add_validation(validation)
   end
-  
+
   def run_validations(model)
-    validations.all? do |validation| 
-      raise RecordInvalid, "#{model.class} not valid" if !validation.call(model)
-       
+    validations.all? do |validation|
+      raise RecordInvalid, "#{model.class} not valid" unless validation.call(model)
+
       true
     end
   end

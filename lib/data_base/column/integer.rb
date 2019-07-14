@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require 'data_base/column.rb'
+require_relative '../column.rb'
 
 # add comment
 module Column
   class Integer < Base
-
     def self.type
       ::Integer
     end

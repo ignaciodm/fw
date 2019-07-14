@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'data_base/query/aggregate.rb'
-require 'data_base/query/group_by.rb'
-require 'data_base/query/order_by.rb'
-require 'data_base/query/select.rb'
-require 'data_base/query/where.rb'
+require_relative 'query/aggregate.rb'
+require_relative 'query/group_by.rb'
+require_relative 'query/order_by.rb'
+require_relative 'query/select.rb'
+require_relative 'query/where.rb'
 
 # add comment
 class Query
@@ -37,7 +37,7 @@ class Query
     },
     select: {
       execute: proc { |records, query| Select.new.execute(records, query.select_columns) },
-      if: proc { |query| query.select_columns }
+      if: proc { |_query| true }
     }
   }.freeze
 
@@ -69,8 +69,6 @@ class Query
 
   def run
     CLAUSES.values.reduce(@table.records) do |filtered_records, clause|
-      # puts 'FILTERED_RECORDS'
-      # puts filtered_records.first
       if clause[:if].call(self)
         clause[:execute].call(filtered_records, self)
       else

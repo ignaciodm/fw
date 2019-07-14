@@ -90,36 +90,36 @@ describe Query do
                              .from(Project)
                              .run
 
-        expect(results.map(&:to_query_result)).to eq([
-                                                       { created_date: '2010-04-01 13:35',
-                                                         finish_date: '2010-05-15',
-                                                         internal_bid: 45.0,
-                                                         project: 'the hobbit',
-                                                         shot: '01',
-                                                         status: 'scheduled',
-                                                         version: 64 },
-                                                       { created_date: '2001-04-01 06:47',
-                                                         finish_date: '2001-05-15',
-                                                         internal_bid: 15.0,
-                                                         project: 'lotr',
-                                                         shot: '03',
-                                                         status: 'finished',
-                                                         version: 16 },
-                                                       { created_date: '2010-03-22 01:10',
-                                                         finish_date: '2010-05-15',
-                                                         internal_bid: 22.80,
-                                                         project: 'the hobbit',
-                                                         shot: '40',
-                                                         status: 'finished',
-                                                         version: 32 },
-                                                       { created_date: '2006-10-15 09:14',
-                                                         finish_date: '2006-07-22',
-                                                         internal_bid: 30.00,
-                                                         project: 'king kong',
-                                                         shot: '42',
-                                                         status: 'not required',
-                                                         version: 128 }
-                                                     ])
+        expect(results).to eq([
+                                { created_date: '2010-04-01 13:35',
+                                  finish_date: '2010-05-15',
+                                  internal_bid: 45.0,
+                                  project: 'the hobbit',
+                                  shot: '01',
+                                  status: 'scheduled',
+                                  version: 64 },
+                                { created_date: '2001-04-01 06:47',
+                                  finish_date: '2001-05-15',
+                                  internal_bid: 15.0,
+                                  project: 'lotr',
+                                  shot: '03',
+                                  status: 'finished',
+                                  version: 16 },
+                                { created_date: '2010-03-22 01:10',
+                                  finish_date: '2010-05-15',
+                                  internal_bid: 22.80,
+                                  project: 'the hobbit',
+                                  shot: '40',
+                                  status: 'finished',
+                                  version: 32 },
+                                { created_date: '2006-10-15 09:14',
+                                  finish_date: '2006-07-22',
+                                  internal_bid: 30.00,
+                                  project: 'king kong',
+                                  shot: '42',
+                                  status: 'not required',
+                                  version: 128 }
+                              ])
       end
 
       it 'should return columns specified on the select clause' do

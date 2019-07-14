@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'time'
-require 'data_base/column.rb'
+require_relative 'column.rb'
 
 # add comment
 class Table
@@ -20,7 +20,7 @@ class Table
 
   def add_record(record)
     record.validate!
-    @records << record 
+    @records << record
   end
 
   def on_each_record_with_index
@@ -36,7 +36,7 @@ class Table
     column.value_casted_to_type(value)
   end
 
-  # TODO make these methdos generic instread of repeating logic
+  # TODO: make these methdos generic instread of repeating logic
   # use define_method, or hash value references
   def string(name)
     add_column String, name

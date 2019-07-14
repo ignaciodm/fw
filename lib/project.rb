@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'model.rb'
+require_relative 'model.rb'
 
 # add comment
 class Project
@@ -14,7 +14,7 @@ class Project
                 :internal_bid,
                 :created_date
 
-  validate_attr :project, length: {max: 15}
+  validate_attr :project, length: { max: 15 }
 
   def to_h
     { project: project,

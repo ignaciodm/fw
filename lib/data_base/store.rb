@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'data_base/table.rb'
-require 'data_base/index.rb'
-require 'data_base/query.rb'
+require_relative 'table.rb'
+require_relative 'index.rb'
+require_relative 'query.rb'
 require 'ostruct'
 
 # add comment
@@ -15,7 +15,7 @@ class Store
 
   def create_table(model_class)
     table = Table.new(model: model_class)
-    model_class.table = table #binding model to table
+    model_class.table = table # binding model to table
     yield(table)
 
     add_table_for_model(table, model_class)
@@ -41,7 +41,6 @@ class Store
       primary_index = context.indexes.first # TODO: identify if unique index
 
       begin
-
         if primary_index && !primary_index.unique?(new_record)
           table.remove_record_by_index(primary_index.index_for_record(new_record))
         end
@@ -51,7 +50,6 @@ class Store
       rescue StandardError => e
         raise e
       end
-     
     end
   end
 

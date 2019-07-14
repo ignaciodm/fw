@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Aggregate
-  #   include Clause
-
   def execute(records_grouped_by, aggregate_functions)
     records_grouped_by
       .map do |_key, records|

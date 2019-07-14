@@ -130,15 +130,14 @@ describe Store do
   end
 
   describe 'when adding invalid projects' do
-
     it 'should not add projects with invalid project title' do
-      expect { @data_store.store_record(Project, {project: 'loooooooooooooooooooooong'})}.to raise_error
+      expect { @data_store.store_record(Project, project: 'loooooooooooooooooooooong') }.to raise_error
     end
 
     it 'should not add projects with invalid project title' do
       begin
-         @data_store.store_record(Project, {project: 'loooooooooooooooooooooong'})
-      rescue => RecordInvalid
+        @data_store.store_record(Project, project: 'loooooooooooooooooooooong')
+      rescue StandardError => e
         expect(@table.records.size).to eq(0)
       end
     end

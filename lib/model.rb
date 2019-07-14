@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'model_class_methods.rb'
+require_relative 'model_class_methods.rb'
 
 # add comment
 module Model
@@ -16,7 +16,7 @@ module Model
   end
 
   def validate!
-    #true
+    # true
     self.class.run_validations(self)
   end
 end
