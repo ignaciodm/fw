@@ -10,7 +10,6 @@ class Aggregate
         functions = aggregate_function_by_key[:functions]
         all_values_in_column = records.map(&key.to_sym)
 
-        # TODO: logic should depend of field type
         result = {}
         result[key.to_sym] = functions.reduce(all_values_in_column) { |acc, f| acc.send(f.to_sym) }
         result

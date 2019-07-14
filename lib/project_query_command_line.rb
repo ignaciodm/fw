@@ -49,6 +49,34 @@ class ProjectQueryCommandLine
   def self.validate_arguments(string_argv)
     #  1) parse arguments
 
+    if string_argv.empty?
+      raise InvalidArguments, "How to use this command line query tool? \n" \
+                              "Here are a few examples: \n" \
+                              " ruby query.rb -s PROJECT,SHOT,VERSION \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -o FINISH_DATE,INTERNAL_BID \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,SHOT:count -g PROJECT \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,INTERNAL_BID:min,SHOT:max -g PROJECT \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,INTERNAL_BID:sum,SHOT:collect -g PROJECT \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -f FINISH_DATE=2006-07-22 \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,INTERNAL_BID:sum,SHOT:collect -g PROJECT \n" \
+                              "\n" \
+                              " ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -o FINISH_DATE,INTERNAL_BID \n" \
+                              "\n\n\n" \
+                              "Options:\n" \
+                              "1) -s (select) comma separated list \n" \
+                              "supported aggregated functions: #{VALID_SELECT_AGGREGATED_FUNCTIONS}\n\n" \
+                              "2) -f (filter) comma separated list \n\n" \
+                              "3) -o (order by) comma separated list \n\n" \
+                              "4) -g (group_by) only one group supported \n\n"
+
+    end
+
     arguments = string_argv.split(' ')
     # validate options
     command_line_options = arguments.select { |str| str.start_with?('-') }
