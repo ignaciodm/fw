@@ -41,7 +41,7 @@ class ProjectQueryCommandLine
     f: {
       method: 'where',
       parser: proc do |str|
-                [str.downcase.split('=')].to_h
+          FilterExpressionParse.new(str)
               end
     },
     g: {
@@ -50,43 +50,41 @@ class ProjectQueryCommandLine
     }
   }.freeze
 
+  def self.build_argv_as_hash(string_argv)
+    string_argv
+      .split(' -')
+      .delete_if(&:empty?)
+      .map do |arg|
+        command_line_option = arg.slice(0)   # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "f"
+        command_line_option_arg = arg[2..-1].rstrip # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "PROJECT=\"the hobbit\" OR PROJECT=\"lotr\""
+        {key: command_line_option.to_sym, value:  command_line_option_arg}
+      end
+  end
+
   def self.validate_empty_arguments(string_argv)
     return unless string_argv.empty?
 
     raise InvalidArguments, File.read(File.expand_path('../data/how_to_use.txt', __dir__))
   end
 
-  def self.validate_options(arguments)
-    command_line_options = arguments.select { |str| str.start_with?('-') }
-    command_line_options.each do |option|
-      option_key = option.sub '-', ''
-      unless CLAUSES_DEF[option_key.to_sym]
-        raise InvalidArguments, "options not valid: #{option}. Valid options are -s -o -f -g"
+  def self.validate_options(argv_as_hash)
+    argv_as_hash.each do |option|
+      unless CLAUSES_DEF[option[:key].to_sym]
+        raise InvalidArguments, "options not valid: #{option[:key]}. Valid options are -s -o -f -g"
       end
     end
   end
 
-  def self.validate_values(arguments)
-    command_line_options_with_values = arguments.each_slice(2).to_a
-
-    command_line_options_with_values.each do |clause|
-      command_line_option, command_line_option_arg = clause
-      command_line_option = command_line_option.sub('-', '').to_sym
-
-      validate = CLAUSES_DEF[command_line_option][:validate]
-
-      validate&.call(command_line_option_arg)
+  def self.validate_values(argv_as_hash)
+    argv_as_hash.each do |option|
+      validate = CLAUSES_DEF[option[:key]][:validate]
+      validate&.call(option[:value])
     end
   end
 
-  def self.validate_arguments(string_argv)
-    validate_empty_arguments(string_argv)
-
-    arguments = string_argv.split(' ')
-
-    validate_options(arguments)
-
-    validate_values(arguments)
+  def self.validate_arguments(argv_as_hash)
+    validate_options(argv_as_hash)
+    validate_values(argv_as_hash)
   end
 
   def self.file_importer
@@ -129,13 +127,13 @@ class ProjectQueryCommandLine
     end
   end
 
-  def self.build_query_and_run(command_line_options_with_values, data_store)
+  def self.build_query_and_run(argv_as_hash, data_store)
     new_query = data_store.new_query.from(Project)
 
-    command_line_options_with_values.reduce(new_query) do |query, clause|
-      command_line_option, command_line_option_arg = clause
+    argv_as_hash.reduce(new_query) do |query, argument_hash|
+      command_line_option = argument_hash[:key]  # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "f"
+      command_line_option_arg = argument_hash[:value]  # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "PROJECT=\"the hobbit\" OR PROJECT=\"lotr\""
 
-      command_line_option = command_line_option.sub('-', '')
       clause_def = CLAUSES_DEF[command_line_option.to_sym]
       method = clause_def[:method]
       parser = clause_def[:parser]
@@ -154,12 +152,17 @@ class ProjectQueryCommandLine
   end
 
   def self.run(string_argv)
-    validate_arguments(string_argv)
+    validate_empty_arguments(string_argv)
+
+    argv_as_hash = build_argv_as_hash(string_argv)
+
+    puts argv_as_hash
+    validate_arguments(argv_as_hash)
 
     data_store = create_store
 
     save_record_in_store(file_importer, data_store)
 
-    print_results build_query_and_run(string_argv.split(' ').each_slice(2).to_a, data_store)
+    print_results build_query_and_run(argv_as_hash, data_store)
   end
 end
