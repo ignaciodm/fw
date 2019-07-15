@@ -3,7 +3,12 @@
 require_relative 'lib/project_query_command_line.rb'
 
 begin
-  puts ProjectQueryCommandLine.run(ARGV.join(' '))
+  results = ProjectQueryCommandLine.run(ARGV.join(' '))
+  puts"=========================="
+  puts "==========Results========="
+  puts "=========================="
+  puts results
+
 rescue InvalidArguments => e
   puts e
 end

@@ -152,18 +152,6 @@ describe Query do
         )
       end
 
-      # it 'should select specific columns and apply the where clause ' do
-      #   expression = FilterExpressionTree.build("finish_date=2006-07-22")
-      #   results = @data_store.new_query
-      #                        .select(%w[project shot version status])
-      #                        .where("finish_date=2006-07-22")
-      #                        .from(Project)
-      #                        .run
-
-      #   expect(results).to eq(
-      #     [{ project: 'king kong', shot: '42', status: 'not required', version: 128 }]
-      #   )
-      # end
     end
 
     describe 'sort_by' do
@@ -311,21 +299,6 @@ describe Query do
         )
       end
 
-      # it 'should fail in group_by without aggregate functions' do
-      #   results = @data_store.new_query
-      #                        .select(%w[project internal_bid])
-      #                        .from(Project)
-      #                        .group_by(%w[project])
-      #                        .run
-
-      #   expect(results).to eq(
-      #     [
-      #       { project: 'the hobbit', internal_bid: 45 },
-      #       { project: 'lotr', internal_bid: 15.0 },
-      #       { project: 'king kong', internal_bid: 30.0 }
-      #     ]
-      #   )
-      # end
     end
   end
 end

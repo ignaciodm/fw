@@ -144,9 +144,6 @@ class ProjectQueryCommandLine
   end
 
   def self.print_results(results)
-    puts"=========================="
-    puts "==========Results========="
-    puts "=========================="
     results.map do |result|
       values = result.values.map do |value|
         value.is_a?(Enumerator) ? "[#{value.to_a.join(',')}]" : value
@@ -156,12 +153,10 @@ class ProjectQueryCommandLine
   end
 
   def self.run(string_argv)
-    puts string_argv
     validate_empty_arguments(string_argv)
 
     argv_as_hash = build_argv_as_hash(string_argv)
 
-    puts argv_as_hash
     validate_arguments(argv_as_hash)
 
     data_store = create_store

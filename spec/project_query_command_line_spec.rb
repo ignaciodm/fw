@@ -80,9 +80,6 @@ describe ProjectQueryCommandLine do
                                                                  ])
   end
 
-  # PROJECT="the hobbit" AND SHOT=1 OR SHOT=40
-  # PROJECT="the hobbit" AND (SHOT=1 OR SHOT=40)
-
   
   it 'should filter by multiple projects' do
     argv_as_string = ' -s PROJECT,INTERNAL_BID -f PROJECT="the hobbit" OR PROJECT="lotr"'
