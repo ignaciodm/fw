@@ -3,6 +3,7 @@
 require_relative 'data_base/store.rb'
 require_relative 'project.rb'
 require_relative 'file_importer.rb'
+require_relative 'filter_expression_tree.rb'
 
 # add coment
 class InvalidArguments < StandardError
@@ -41,8 +42,8 @@ class ProjectQueryCommandLine
     f: {
       method: 'where',
       parser: proc do |str|
-          FilterExpressionParse.new(str)
-              end
+          FilterExpressionTree.build(str.gsub('"', ''))
+        end
     },
     g: {
       method: 'group_by',
@@ -51,14 +52,14 @@ class ProjectQueryCommandLine
   }.freeze
 
   def self.build_argv_as_hash(string_argv)
-    string_argv
-      .split(' -')
-      .delete_if(&:empty?)
-      .map do |arg|
-        command_line_option = arg.slice(0)   # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "f"
-        command_line_option_arg = arg[2..-1].rstrip # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "PROJECT=\"the hobbit\" OR PROJECT=\"lotr\""
-        {key: command_line_option.to_sym, value:  command_line_option_arg}
-      end
+    " #{string_argv.clone}"
+    .split(" -")[1..-1]
+    .map do |arg|
+      command_line_option = arg.slice(0)   # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "f"
+      command_line_option_arg = arg[2..-1] # "f PROJECT=\"the hobbit\" OR PROJECT=\"lotr\"" -> "PROJECT=\"the hobbit\" OR PROJECT=\"lotr\""
+      value = command_line_option_arg ? command_line_option_arg.rstrip : nil
+      {key: command_line_option.to_sym, value: value}
+    end.compact
   end
 
   def self.validate_empty_arguments(string_argv)
@@ -143,6 +144,9 @@ class ProjectQueryCommandLine
   end
 
   def self.print_results(results)
+    puts"=========================="
+    puts "==========Results========="
+    puts "=========================="
     results.map do |result|
       values = result.values.map do |value|
         value.is_a?(Enumerator) ? "[#{value.to_a.join(',')}]" : value
@@ -152,6 +156,7 @@ class ProjectQueryCommandLine
   end
 
   def self.run(string_argv)
+    puts string_argv
     validate_empty_arguments(string_argv)
 
     argv_as_hash = build_argv_as_hash(string_argv)

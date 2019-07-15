@@ -87,10 +87,9 @@ describe ProjectQueryCommandLine do
   it 'should filter by multiple projects' do
     argv_as_string = ' -s PROJECT,INTERNAL_BID -f PROJECT="the hobbit" OR PROJECT="lotr"'
     expect(ProjectQueryCommandLine.run(argv_as_string)).to eq([
-                                                          'lotr,03,16,finished,2001-05-15,15.0,2001-04-01 06:47',
-                                                          'king kong,42,128,not required,2006-07-22,30.0,2006-10-15 09:14',
-                                                          'the hobbit,40,32,finished,2010-05-15,22.8,2010-03-22 01:10',
-                                                          'the hobbit,01,64,scheduled,2010-05-15,45.0,2010-04-01 13:35'
+                                                          'the hobbit,45.0',
+                                                          'lotr,15.0',
+                                                          'the hobbit,22.8',
                                                         ])
   end
 

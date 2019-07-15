@@ -2,3 +2,5 @@ Metrics/BlockLength:
   ExcludedMethods: ["describe", "context"]
 Metrics/LineLength:
   Max: 100
+Style/Documentation:
+  Enabled: false

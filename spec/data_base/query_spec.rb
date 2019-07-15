@@ -3,6 +3,7 @@
 require 'data_base.rb'
 require 'data_base/store.rb'
 require 'data_base/query.rb'
+require 'filter_expression_tree.rb'
 # require 'project.rb'
 # require 'index.rb'
 
@@ -139,9 +140,10 @@ describe Query do
 
     describe 'where' do
       it 'should select specific columns and apply the where clause ' do
+        expression = FilterExpressionTree.build("finish_date=2006-07-22")
         results = @data_store.new_query
                              .select(%w[project shot version status])
-                             .where(finish_date: '2006-07-22')
+                             .where(expression)
                              .from(Project)
                              .run
 
@@ -149,6 +151,19 @@ describe Query do
           [{ project: 'king kong', shot: '42', status: 'not required', version: 128 }]
         )
       end
+
+      # it 'should select specific columns and apply the where clause ' do
+      #   expression = FilterExpressionTree.build("finish_date=2006-07-22")
+      #   results = @data_store.new_query
+      #                        .select(%w[project shot version status])
+      #                        .where("finish_date=2006-07-22")
+      #                        .from(Project)
+      #                        .run
+
+      #   expect(results).to eq(
+      #     [{ project: 'king kong', shot: '42', status: 'not required', version: 128 }]
+      #   )
+      # end
     end
 
     describe 'sort_by' do

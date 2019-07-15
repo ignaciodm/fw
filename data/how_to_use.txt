@@ -20,12 +20,16 @@ Here are a few examples:
 
  ruby query.rb -s PROJECT,SHOT,VERSION,STATUS -o FINISH_DATE,INTERNAL_BID 
 
+ ruby query.rb -s PROJECT,INTERNAL_BID,SHOT -f 'PROJECT="the hobbit" AND (SHOT=01 OR SHOT=40)'
 
+ ruby query.rb -s PROJECT,INTERNAL_BID,SHOT -f 'PROJECT=the hobbit AND (SHOT=01 OR SHOT=40)'
 Options:
 1) -s (select) comma separated list. can  be empty
 supported aggregated functions: ["min", "max", "collect", "count", "sum"]
 
-2) -f (filter) comma separated list 
+2) -f (filter) logical expression
+    with quotes = 'PROJECT="the hobbit" AND (SHOT=01 OR SHOT=40)'
+    without quotes = 'PROJECT=the hobbit AND (SHOT=01 OR SHOT=40)'
 
 3) -o (order by) comma separated list 
 
